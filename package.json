@@ -1,6 +1,6 @@
 {
     "name": "react-promise-switch",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Easily handle promises in your React components.",
     "main": "dist/index.cjs.js",
     "module": "dist/index.es.js",
@@ -8,9 +8,9 @@
         "type": "git",
         "url": "https://github.com/erictooth/react-promise-switch.git"
     },
-    "homepage": "https://github.com/erictooth/token2css/blob/master/README.md",
+    "homepage": "https://github.com/erictooth/react-promise-switch/blob/master/README.md",
     "bugs": {
-        "url": "https://github.com/erictooth/token2css/issues"
+        "url": "https://github.com/erictooth/react-promise-switch/issues"
     },
     "keywords": [
         "react",
