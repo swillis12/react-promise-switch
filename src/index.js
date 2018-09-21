@@ -20,7 +20,7 @@ type State = {|
 |};
 
 class ReactPromiseSwitch extends React.Component<Props, State> {
-    props = {
+    static propTypes = {
         cancel: PropTypes.func,
         promise: PropTypes.func.isRequired,
         renderError: PropTypes.func.isRequired,
