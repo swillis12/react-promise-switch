@@ -20,7 +20,14 @@ module.exports = {
     plugins: [
         babel({
             exclude: "node_modules/**",
-            presets: ["@babel/preset-react", "@babel/preset-flow"],
+            presets: [
+                [
+                    "@babel/preset-env",
+                    { targets: { node: 8 }, forceAllTransforms: true, modules: false },
+                ],
+                "@babel/preset-react",
+                "@babel/preset-flow",
+            ],
             plugins: [
                 "@babel/plugin-proposal-object-rest-spread",
                 "@babel/plugin-proposal-class-properties",
