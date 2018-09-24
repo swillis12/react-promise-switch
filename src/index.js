@@ -1,93 +1,155 @@
 //@flow
 import * as React from "react";
-import PropTypes from "prop-types";
 
-import makeCancellable, { type CancellablePromise } from "./makeCancellable.js";
+import makeCancelable, { type CancelablePromise } from "./makeCancelable.js";
 
-type Props = {
+type REQUEST_STATE = "PENDING" | "ERROR" | "SUCCESS";
+
+type SharedProps<T> = {|
+    /**
+     * Called whenever the provided promise should be canceled
+     */
     cancel?: () => void,
-    promise: () => Promise<any>,
-    renderError: (error: any) => React.Node,
-    renderPending: (prevData: any) => React.Node,
-    renderSuccess: (data: any) => React.Node,
-};
 
-type State = {|
-    data: any,
-    error: any,
-    request: ?CancellablePromise,
-    request_state: "PENDING" | "ERROR" | "SUCCESS",
+    /**
+     * A function returning the promise that react-promise-state should initiate
+     */
+    promise: () => Promise<T>,
 |};
 
-class ReactPromiseSwitch extends React.Component<Props, State> {
-    static propTypes = {
-        cancel: PropTypes.func,
-        promise: PropTypes.func.isRequired,
-        renderError: PropTypes.func.isRequired,
-        renderPending: PropTypes.func.isRequired,
-        renderSuccess: PropTypes.func.isRequired,
-    };
+type ChildProps<T> = {|
+    ...SharedProps<T>,
 
-    state = {
-        data: null,
-        error: null,
-        request: null,
+    /**
+     * Simple shared render function for all request_states
+     */
+    children: (error: mixed, data: ?T, request_state: REQUEST_STATE) => React.Node,
+|};
+
+type SwitchProps<T> = {|
+    ...SharedProps<T>,
+    renderError: (error: mixed) => React.Node,
+    renderPending: () => React.Node,
+    renderSuccess: (data: T) => React.Node,
+|};
+
+type InputProps<T> = {|
+    ...SharedProps<T>,
+
+    /**
+     * Used when the component should act as an input rather than a render helper
+     */
+    onChange: (error: mixed, data: ?T, request_state: REQUEST_STATE) => void,
+|};
+
+type Props<T> = ChildProps<T> | SwitchProps<T> | InputProps<T>;
+
+type State<T> = {|
+    data?: T,
+    error: mixed,
+    request: CancelablePromise<T>,
+    request_state: REQUEST_STATE,
+|};
+
+/**
+ * Build a cancelable promise object, defaulting to the cancel prop if provided
+ */
+function buildRequest<T>(props: Props<T>): CancelablePromise<T> {
+    return props.cancel
+        ? { cancel: props.cancel, promise: props.promise }
+        : makeCancelable(props.promise);
+}
+
+/**
+ * Get the default / reset state of the component
+ */
+function getPendingState<T>(props: Props<T>): State<T> {
+    return {
+        data: undefined,
+        error: undefined,
+        request: buildRequest<T>(props),
         request_state: "PENDING",
     };
+}
 
-    cancelRequest = () => {
-        if (this.state.request_state !== "PENDING" || !this.state.request) {
-            return;
-        }
+/**
+ * React Promise Switch abstracts the overhead and complexity of using promises to store and render data in a component's state.
+ */
+class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
+    constructor(props: Props<T>) {
+        super(props);
+        this.state = getPendingState<T>(props);
+    }
 
-        this.state.request.cancel();
-    };
-
+    /**
+     * Call the function that returns the cancelable promise
+     */
     initiateRequest = () => {
-        this.cancelRequest();
-        const { promise, cancel } = this.props;
-        const request = cancel ? { cancel, promise } : makeCancellable(promise);
-
-        this.setState({ request, request_state: "PENDING" }, () => {
-            if (!this.state.request) {
-                return;
-            }
-
-            this.state.request
-                .promise()
-                .then((data: any) => this.setState({ data, request_state: "SUCCESS" }))
-                .catch((error: any) => this.setState({ error, request_state: "ERROR" }));
-        });
+        this.state.request
+            .promise()
+            .then((data: T) => this.setState({ data, request_state: "SUCCESS" }))
+            .catch((error: mixed) => this.setState({ error, request_state: "ERROR" }));
     };
 
     componentDidMount() {
         this.initiateRequest();
     }
 
-    componentDidUpdate(prevProps: Props) {
+    componentDidUpdate(prevProps: Props<T>, prevState: State<T>) {
+        if (
+            typeof this.props.onChange === "function" &&
+            this.state.request_state !== prevState.request_state
+        ) {
+            this.props.onChange(this.state.error, this.state.data, this.state.request_state);
+        }
+
+        // If the provided promise is changed, we should cancel the pending promise
+        // to avoid a race condition and because we don't care about the old result anyways.
         if (this.props.promise !== prevProps.promise) {
-            this.initiateRequest();
+            if (this.state.request_state === "PENDING") {
+                this.state.request.cancel();
+            }
+
+            // Then we should reset the state and initiate the new promise
+            this.setState(getPendingState<T>(this.props), () => {
+                this.initiateRequest();
+            });
         }
     }
 
     componentWillUnmount() {
-        this.cancelRequest();
-    }
-
-    shouldComponentUpdate(nextProps: Props, nextState: State) {
-        return nextState !== this.state || nextProps.promise !== this.props.promise;
+        // We should always cancel requests when the component is unmounting
+        // so that we don't accidentally set state on it later.
+        if (this.state.request_state === "PENDING") {
+            this.state.request.cancel();
+        }
     }
 
     render() {
         const { data, error, request_state } = this.state;
 
+        // If the child function is defined, it should take precedence over the switch props
+        if (typeof this.props.children === "function") {
+            return this.props.children(error, data, request_state);
+        }
+
         switch (request_state) {
             case "PENDING":
-                return this.props.renderPending(data);
+                if (typeof this.props.renderPending !== "function") {
+                    return null;
+                }
+                return this.props.renderPending();
             case "SUCCESS":
+                if (typeof this.props.renderSuccess !== "function") {
+                    return null;
+                }
+                if (data === undefined) return null;
                 return this.props.renderSuccess(data);
             case "ERROR":
             default:
+                if (typeof this.props.renderError !== "function") {
+                    return null;
+                }
                 return this.props.renderError(error);
         }
     }

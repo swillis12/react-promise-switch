@@ -1,6 +1,6 @@
 {
     "name": "react-promise-switch",
-    "version": "1.0.3",
+    "version": "1.1.0",
     "description": "Easily handle promises in your React components.",
     "main": "dist/index.cjs.js",
     "module": "dist/index.es.js",
@@ -25,7 +25,7 @@
     "sideEffects": false,
     "scripts": {
         "build": "npm run lint && npm run build:flow && npm run build:js ",
-        "build:flow": "flow check && flow-copy-source src dist && cp dist/index.js.flow dist/index.cjs.js.flow && mv dist/index.js.flow dist/index.es.js.flow",
+        "build:flow": "flow check && flow-copy-source src dist && cp dist/index.js.flow dist/index.cjs.js.flow && mv dist/index.js.flow dist/index.es.js.flow && flow-coverage-report -i src/**/*.js -t html",
         "build:js": "rollup -c rollup.config.js",
         "lint": "eslint -c ./.eslintrc.js src/",
         "test": "echo \"Error: no test specified\" && exit 1"
@@ -52,6 +52,7 @@
         "eslint-plugin-react": "^7.11.1",
         "flow-bin": "^0.81.0",
         "flow-copy-source": "^2.0.2",
+        "flow-coverage-report": "^0.6.0",
         "prettier": "^1.14.3",
         "rollup": "^0.66.1",
         "rollup-plugin-babel": "^4.0.3",
@@ -62,8 +63,5 @@
     "peerDependencies": {
         "react": "^16.3.0"
     },
-    "dependencies": {
-        "prop-types": "^15.6.2",
-        "prop-types-extra": "^1.1.0"
-    }
+    "dependencies": {}
 }
