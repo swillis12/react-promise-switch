@@ -1,4 +1,4 @@
-# React Promise Switch &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/erictooth/token2css/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/react-promise-switch.svg)](https://www.npmjs.com/package/react-promise-switch)
+# React Promise Switch &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/erictooth/token2css/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/react-promise-switch.svg)](https://www.npmjs.com/package/react-promise-switch) ![flow coverage](https://github.com/erictooth/react-promise-switch/blob/master/flow-coverage/flow-coverage-badge.svg)
 
 React Promise Switch abstracts the overhead and complexity of using promises to store and render data in a component's state.
 
@@ -54,7 +54,7 @@ export default () => (
 
 ### Child as a function
 
-If you want to continue showing old data while a new request is pending, you can provide the same component to `renderPending` and `renderSuccess` (and `renderError` too if needed).
+If you need full control over what to render depending on the state, you can use the child-as-a-function prop.
 
 ```jsx
 import PromiseSwitch from "react-promise-switch";
