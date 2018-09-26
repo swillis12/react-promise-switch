@@ -12,6 +12,11 @@ type SharedProps<T> = {|
     cancel?: () => void,
 
     /**
+     * Called whenever the request state changes
+     */
+    onChange: (error: mixed, data: ?T, request_state: REQUEST_STATE) => void,
+
+    /**
      * A function returning the promise that react-promise-state should initiate
      */
     promise: () => Promise<T>,
@@ -33,16 +38,7 @@ type SwitchProps<T> = {|
     renderSuccess: (data: T) => React.Node,
 |};
 
-type InputProps<T> = {|
-    ...SharedProps<T>,
-
-    /**
-     * Used when the component should act as an input rather than a render helper
-     */
-    onChange: (error: mixed, data: ?T, request_state: REQUEST_STATE) => void,
-|};
-
-type Props<T> = ChildProps<T> | SwitchProps<T> | InputProps<T>;
+type Props<T> = ChildProps<T> | SwitchProps<T>;
 
 type State<T> = {|
     data?: T,
