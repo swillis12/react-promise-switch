@@ -133,9 +133,7 @@ class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
     componentWillUnmount() {
         // We should always cancel requests when the component is unmounting
         // so that we don't accidentally set state on it later.
-        if (this.promiseInstance && this.state.request_state === "PENDING") {
-            this.state.request.cancel(this.promiseInstance);
-        }
+        this.cancelPendingRequest();
 
         if (typeof this.props.refresh === "function") {
             this.props.refresh(() => undefined);
