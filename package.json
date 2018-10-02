@@ -25,7 +25,7 @@
     "sideEffects": false,
     "scripts": {
         "build": "npm run lint && npm run build:flow && npm run build:js ",
-        "build:flow": "flow check && flow-copy-source src dist && cp dist/index.js.flow dist/index.cjs.js.flow && mv dist/index.js.flow dist/index.es.js.flow && flow-coverage-report -i src/**/*.js -t html",
+        "build:flow": "flow check && flow-copy-source src dist && cp dist/index.js.flow dist/index.cjs.js.flow && mv dist/index.js.flow dist/index.es.js.flow && flow-coverage-report -i src/**/*.js -x 'src/__tests__/**' -t html",
         "build:js": "rollup -c rollup.config.js",
         "lint": "eslint -c ./.eslintrc.js src/",
         "test": "echo \"Error: no test specified\" && exit 1"

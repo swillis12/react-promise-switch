@@ -14,7 +14,7 @@ type SharedProps<T> = {|
     /**
      * Called whenever the request state changes
      */
-    onChange: (error: mixed, data: ?T, request_state: REQUEST_STATE) => void,
+    onChange?: (error: mixed, data: ?T, request_state: REQUEST_STATE) => void,
 
     /**
      * A function returning the promise that react-promise-state should initiate
@@ -38,7 +38,7 @@ type SwitchProps<T> = {|
     renderSuccess: (data: T) => React.Node,
 |};
 
-type Props<T> = ChildProps<T> | SwitchProps<T>;
+type Props<T> = SharedProps<T> | (ChildProps<T> | SwitchProps<T>);
 
 type State<T> = {|
     data?: T,
