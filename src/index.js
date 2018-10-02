@@ -24,7 +24,7 @@ type SharedProps<T> = {|
     /**
      * Gives the ability to force an update without forcing the parent to re-render
      */
-    refresh?: (cb: () => void) => void,
+    refresh?: (cb: () => void) => mixed,
 |};
 
 type ChildProps<T> = {|
