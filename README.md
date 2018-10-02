@@ -1,4 +1,4 @@
-# React Promise Switch &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/erictooth/react-promise-switch/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/react-promise-switch.svg)](https://www.npmjs.com/package/react-promise-switch) ![flow coverage](https://img.shields.io/badge/flow--coverage-100%25-brightgreen.svg)
+# React Promise Switch &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/erictooth/react-promise-switch/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/react-promise-switch.svg)](https://www.npmjs.com/package/react-promise-switch) ![flow coverage](https://img.shields.io/badge/flow--coverage-100%25-brightgreen.svg) ![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)
 
 React Promise Switch abstracts the overhead and complexity of using promises to store and render data in a component's state.
 
@@ -144,7 +144,3 @@ export default () => (
 ### Flow Coverage
 
 By offering 100% [Flow](https://flow.org/) coverage, it’s very simple to integrate this library into existing Flow projects. The exported class accepts a generic parameter — but until Flow supports JSX component generics, the return type you provide to the `promise` prop will be inferred all the way down to the `data` argument provided in each of the different APIs. Eventually I’d like to add [TypeScript](https://www.typescriptlang.org/) coverage as well — but until I have time, contributions are welcomed!
-
-### Tests
-
-Although I haven’t written tests yet, I plan to do so. Contributions welcomed!
