@@ -89,9 +89,19 @@ class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
     promiseInstance: ?Promise<T> = null;
 
     /**
+     * Cancel the request if it is pending
+     */
+    cancelPendingRequest = () => {
+        if (this.promiseInstance && this.state.request_state === "PENDING") {
+            this.state.request.cancel(this.promiseInstance);
+        }
+    };
+
+    /**
      * Call the function that returns the cancelable promise
      */
     initiateRequest = () => {
+        this.cancelPendingRequest();
         this.promiseInstance = this.state.request.promise();
         this.promiseInstance
             .then((data: T) => this.setState({ data, request_state: "SUCCESS" }))
@@ -113,10 +123,6 @@ class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
         // If the provided promise is changed, we should cancel the pending promise
         // to avoid a race condition and because we don't care about the old result anyways.
         if (this.props.promise !== prevProps.promise) {
-            if (this.promiseInstance && this.state.request_state === "PENDING") {
-                this.state.request.cancel(this.promiseInstance);
-            }
-
             // Then we should reset the state and initiate the new promise
             this.setState(getPendingState<T>(this.props), () => {
                 this.initiateRequest();

@@ -186,3 +186,25 @@ it("doesn't call cancel resolve/reject", done => {
         done();
     });
 });
+
+it("calls cancel when refresh is called", done => {
+    const getFakePromise = mockCancel => () => {
+        const fakePromise = new Promise(() => {}); //Promise that wont be resolved
+        fakePromise.fakeCancel = mockCancel;
+        return fakePromise;
+    };
+    const mockCancel = jest.fn();
+    let refresh = null;
+    shallow(
+        <ReactPromiseSwitch
+            promise={getFakePromise(mockCancel)}
+            cancel={p => p.fakeCancel()}
+            refresh={r => (refresh = r)}
+        />
+    );
+    refresh();
+    expect(mockCancel.mock.calls.length).toBe(1);
+    refresh();
+    expect(mockCancel.mock.calls.length).toBe(2);
+    done();
+});
