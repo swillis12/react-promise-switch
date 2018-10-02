@@ -20,6 +20,11 @@ type SharedProps<T> = {|
      * A function returning the promise that react-promise-state should initiate
      */
     promise: () => Promise<T>,
+
+    /**
+     * Gives the ability to force an update without forcing the parent to re-render
+     */
+    refresh?: (cb: () => void) => void,
 |};
 
 type ChildProps<T> = {|
@@ -75,6 +80,10 @@ class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
     constructor(props: Props<T>) {
         super(props);
         this.state = getPendingState<T>(props);
+
+        if (typeof this.props.refresh === "function") {
+            this.props.refresh(this.initiateRequest);
+        }
     }
 
     /**
@@ -118,6 +127,10 @@ class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
         // so that we don't accidentally set state on it later.
         if (this.state.request_state === "PENDING") {
             this.state.request.cancel();
+        }
+
+        if (typeof this.props.refresh === "function") {
+            this.props.refresh(() => undefined);
         }
     }
 
