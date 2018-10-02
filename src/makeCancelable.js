@@ -1,5 +1,8 @@
 //@flow
-export type CancelablePromise<T = any> = {| promise: () => Promise<T>, cancel: () => void |};
+export type CancelablePromise<T = any> = {|
+    promise: () => Promise<T>,
+    cancel: (promise?: Promise<T>) => void,
+|};
 
 export default <T>(promise: () => Promise<T>): CancelablePromise<T> => {
     let canceled = false;

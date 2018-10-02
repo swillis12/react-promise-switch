@@ -150,3 +150,39 @@ it("calls renderPending when initially mounted", done => {
         done();
     });
 });
+
+it("calls cancel when unmounted before promise resolve/reject", done => {
+    const getFakePromise = mockCancel => () => {
+        const fakePromise = new Promise(() => {}); //Promise that wont be resolved
+        fakePromise.fakeCancel = mockCancel;
+        return fakePromise;
+    };
+    const mockCancel = jest.fn();
+    const result = shallow(
+        <ReactPromiseSwitch promise={getFakePromise(mockCancel)} cancel={p => p.fakeCancel()} />
+    );
+    result.unmount();
+
+    setImmediate(() => {
+        expect(mockCancel.mock.calls.length).toBe(1);
+        done();
+    });
+});
+
+it("doesn't call cancel resolve/reject", done => {
+    const getFakePromise = mockCancel => () => {
+        const fakePromise = new Promise(resolve => resolve()); //Promise that will be resolved
+        fakePromise.fakeCancel = mockCancel;
+        return fakePromise;
+    };
+    const mockCancel = jest.fn();
+    const result = shallow(
+        <ReactPromiseSwitch promise={getFakePromise(mockCancel)} cancel={p => p.fakeCancel()} />
+    );
+
+    setImmediate(() => {
+        result.unmount();
+        expect(mockCancel.mock.calls.length).toBe(0);
+        done();
+    });
+});

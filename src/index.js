@@ -86,12 +86,14 @@ class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
         }
     }
 
+    promiseInstance: ?Promise<T> = null;
+
     /**
      * Call the function that returns the cancelable promise
      */
     initiateRequest = () => {
-        this.state.request
-            .promise()
+        this.promiseInstance = this.state.request.promise();
+        this.promiseInstance
             .then((data: T) => this.setState({ data, request_state: "SUCCESS" }))
             .catch((error: mixed) => this.setState({ error, request_state: "ERROR" }));
     };
@@ -111,8 +113,8 @@ class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
         // If the provided promise is changed, we should cancel the pending promise
         // to avoid a race condition and because we don't care about the old result anyways.
         if (this.props.promise !== prevProps.promise) {
-            if (this.state.request_state === "PENDING") {
-                this.state.request.cancel();
+            if (this.promiseInstance && this.state.request_state === "PENDING") {
+                this.state.request.cancel(this.promiseInstance);
             }
 
             // Then we should reset the state and initiate the new promise
@@ -125,8 +127,8 @@ class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
     componentWillUnmount() {
         // We should always cancel requests when the component is unmounting
         // so that we don't accidentally set state on it later.
-        if (this.state.request_state === "PENDING") {
-            this.state.request.cancel();
+        if (this.promiseInstance && this.state.request_state === "PENDING") {
+            this.state.request.cancel(this.promiseInstance);
         }
 
         if (typeof this.props.refresh === "function") {
