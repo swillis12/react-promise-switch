@@ -127,6 +127,7 @@ class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
         // If the provided promise is changed, we should cancel the pending promise
         // to avoid a race condition and because we don't care about the old result anyways.
         if (this.props.promise !== prevProps.promise) {
+            this.cancelPendingRequest();
             // Then we should reset the state and initiate the new promise
             this.setState(getPendingState<T>(this.props), () => {
                 this.initiateRequest();

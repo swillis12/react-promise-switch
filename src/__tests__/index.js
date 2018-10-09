@@ -59,9 +59,7 @@ it("re-renders children promise with fullfilled data, twice", done => {
         .resolves(expected);
     const childrenCb = jest.fn();
     const wrapper = shallow(
-        <ReactPromiseSwitch neat="1" promise={promise}>
-            {childrenCb}
-        </ReactPromiseSwitch>
+        <ReactPromiseSwitch promise={promise}>{childrenCb}</ReactPromiseSwitch>
     );
 
     setImmediate(() => {
@@ -77,6 +75,37 @@ it("re-renders children promise with fullfilled data, twice", done => {
         });
         setImmediate(() => {
             expect(childrenCb.mock.calls[childrenCb.mock.calls.length - 1][1]).toBe(nextExpected);
+            done();
+        });
+    });
+});
+
+it("re-renders children promise with fullfilled data and calls cancel", done => {
+    const getFakePromise = (mockCancel, payload) => () => {
+        const fakePromise = new Promise(
+            (resolve, reject) => (payload ? resolve(payload) : undefined)
+        );
+        fakePromise.fakeCancel = mockCancel;
+        return fakePromise;
+    };
+    const mockCancel = jest.fn();
+    const childrenCb = jest.fn();
+    const wrapper = shallow(
+        <ReactPromiseSwitch promise={getFakePromise(mockCancel)} cancel={p => p.fakeCancel()}>
+            {childrenCb}
+        </ReactPromiseSwitch>
+    );
+
+    setImmediate(() => {
+        const expected = { some: "object" };
+        wrapper.setProps({
+            promise: getFakePromise(jest.fn(), expected),
+        });
+
+        expect(mockCancel).toBeCalledTimes(1);
+
+        setImmediate(() => {
+            expect(childrenCb.mock.calls[childrenCb.mock.calls.length - 1][1]).toBe(expected);
             done();
         });
     });
