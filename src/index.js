@@ -82,7 +82,7 @@ class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
         this.state = getPendingState<T>(props);
 
         if (typeof this.props.refresh === "function") {
-            this.props.refresh(this.initiateRequest);
+            this.props.refresh(this.refresh);
         }
     }
 
@@ -97,11 +97,15 @@ class ReactPromiseSwitch<T = any> extends React.Component<Props<T>, State<T>> {
         }
     };
 
+    refresh = () => {
+        this.cancelPendingRequest();
+        this.initiateRequest();
+    };
+
     /**
      * Call the function that returns the cancelable promise
      */
     initiateRequest = () => {
-        this.cancelPendingRequest();
         this.promiseInstance = this.state.request.promise();
         this.promiseInstance
             .then((data: T) => this.setState({ data, request_state: "SUCCESS" }))

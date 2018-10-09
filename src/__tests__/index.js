@@ -51,6 +51,38 @@ it("renders children promise with rejected error", done => {
     });
 });
 
+it("re-renders children promise with fullfilled data, twice", done => {
+    const expected = { some: "object" };
+    const promise = sinon
+        .stub()
+        .returnsPromise()
+        .resolves(expected);
+    const childrenCb = jest.fn();
+    const wrapper = shallow(
+        <ReactPromiseSwitch neat="1" promise={promise}>
+            {childrenCb}
+        </ReactPromiseSwitch>
+    );
+
+    setImmediate(() => {
+        expect(childrenCb.mock.calls[1][1]).toBe(expected);
+
+        const nextExpected = { some: "object1" };
+        const newPromise = sinon
+            .stub()
+            .returnsPromise()
+            .resolves(nextExpected);
+        wrapper.setProps({
+            neat: 2,
+            promise: newPromise,
+        });
+        setImmediate(() => {
+            expect(childrenCb.mock.calls[childrenCb.mock.calls.length - 1][1]).toBe(nextExpected);
+            done();
+        });
+    });
+});
+
 it("does not call onChange on initial render", done => {
     const promise = sinon.stub().returnsPromise();
     const onChange = jest.fn();
