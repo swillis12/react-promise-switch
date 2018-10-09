@@ -73,7 +73,6 @@ it("re-renders children promise with fullfilled data, twice", done => {
             .returnsPromise()
             .resolves(nextExpected);
         wrapper.setProps({
-            neat: 2,
             promise: newPromise,
         });
         setImmediate(() => {
